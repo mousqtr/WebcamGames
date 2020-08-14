@@ -2,6 +2,7 @@ from panda3d.core import loadPrcFileData
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 import numpy as np
+import csv
 
 confVars = """
 win-size 1280 720
@@ -67,7 +68,6 @@ class Connect4(ShowBase):
         # Discs management
         self.red_texture = self.loader.loadTexture("../tex/red_plastic.jpg")
         self.yellow_texture = self.loader.loadTexture("../tex/yellow_plastic.jpg")
-
         self.discs = []
         for i in range(0, 43):
             self.disc = self.loader.loadModel("../models/jeton")
@@ -85,10 +85,16 @@ class Connect4(ShowBase):
         self.movement_V = False
         self.movement_H = False
 
-        # self.discs[1].disc.setPos(2, 40, 7.5)
         # Grid content
-
         self.gridContent = np.zeros((6, 7))
+
+        # Read csv file cases
+        results = []
+        with open("../csv/cases.csv") as csvfile:
+            reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  # change contents to floats
+            for row in reader:  # each row is a list
+                results.append(row)
+        print(results)
 
         # Addition of an update function
         self.taskMgr.add(self.mainloop, "mainloop")
@@ -122,9 +128,6 @@ class Connect4(ShowBase):
             while self.gridContent[self.line][self.index] != 0:
                 self.line += 1
             self.movement_V = True
-
-            #pos.z = self.axes_V[line]
-            #self.discs[self.round].disc.setPos(pos)
 
             # update presence grid
             self.gridContent[self.line][self.index] = 1
