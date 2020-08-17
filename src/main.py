@@ -62,8 +62,9 @@ class Connect4(ShowBase):
         self.grid.setScale(1, 1, 1)
         self.grid.setPos(0, 40, -6.5)
         self.axes_H = [-6, -4, -2, 0, 2, 4, 6]
-        self.axes_V = [-5, -3, -1, 1, 3, 5]
+        self.axes_V = [5, 3, 1, -1, -3, -5]
         self.index = 3
+        self.line = 5
 
         # Discs management
         self.red_texture = self.loader.loadTexture("../tex/red_plastic.jpg")
@@ -80,7 +81,7 @@ class Connect4(ShowBase):
 
         self.round = 0
         self.speed = 20
-        self.line = 0  # final line position
+
         self.discs[self.round].disc.setPos(0, 40, 7.5)
         self.movement_V = False
         self.movement_H = False
@@ -94,7 +95,7 @@ class Connect4(ShowBase):
             reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  # change contents to floats
             for row in reader:  # each row is a list
                 results.append(row)
-        print(results)
+        #print(results)
 
         # Addition of an update function
         self.taskMgr.add(self.mainloop, "mainloop")
@@ -121,16 +122,25 @@ class Connect4(ShowBase):
             self.movement_H = True
 
         # down clic
-        if keyMap["down"] and self.gridContent[5][self.index] != 1 and not self.movement_V:
+        if keyMap["down"] and self.gridContent[0][self.index] != 1 and not self.movement_V:
             keyMap["down"] = False
 
             # Compute new position
-            while self.gridContent[self.line][self.index] != 0:
-                self.line += 1
+            line_fixed = False
+            self.line = 5
+            print("ok")
+            while line_fixed == False and self.line >= 0 :
+                if self.gridContent[self.line][self.index] != 0:
+                    self.line -= 1
+                else :
+                    line_fixed = True
+
+            print(self.line)
             self.movement_V = True
 
             # update presence grid
             self.gridContent[self.line][self.index] = 1
+            print(self.gridContent)
 
         if self.movement_V and pos.z != self.axes_V[self.line]:
             pos.z -= 0.5
