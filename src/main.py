@@ -54,7 +54,7 @@ class Connect4(ShowBase):
         self.set_background_color(1, 1, 0.9)
 
         # Grid management
-        self.grid = self.loader.loadModel("../models/grille")
+        self.grid = self.loader.loadModel("../models/grid")
         self.grid.reparentTo(self.render)
         self.blue_grid = self.loader.loadTexture("../tex/blue_plastic.jpg")
         self.grid.setTexture(self.blue_grid)
@@ -71,7 +71,7 @@ class Connect4(ShowBase):
         self.yellow_texture = self.loader.loadTexture("../tex/yellow_plastic.jpg")
         self.discs = []
         for i in range(0, 43):
-            self.disc = self.loader.loadModel("../models/jeton")
+            self.disc = self.loader.loadModel("../models/disc")
             self.disc.reparentTo(self.render)
             if i % 2 == 0:
                 self.color_disc = Disc(self.disc, self.red_texture)
@@ -94,7 +94,7 @@ class Connect4(ShowBase):
         self.results = []
         with open("../csv/cases.csv") as csvfile:
             reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
-            for row in reader: 
+            for row in reader:
                 self.results.append(row)
 
         # Addition of an update function
