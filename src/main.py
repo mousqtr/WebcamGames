@@ -93,10 +93,9 @@ class Connect4(ShowBase):
         # Read csv file cases
         self.results = []
         with open("../csv/cases.csv") as csvfile:
-            reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  # change contents to floats
-            for row in reader:  # each row is a list
+            reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+            for row in reader: 
                 self.results.append(row)
-        #print(self.results)
 
         # Addition of an update function
         self.taskMgr.add(self.mainloop, "mainloop")
@@ -105,19 +104,16 @@ class Connect4(ShowBase):
     # Fonction d'actualisation
     def mainloop(self, task):
         dt = globalClock.getDt()
-        # print(self.gridContent)
 
         pos = self.discs[self.round].disc.getPos()
-        #pos.z = 7.5
 
-
-        # left clic
+        # Left click
         if keyMap["left"] and self.column != 0 and not self.movement_V:
             keyMap["left"] = False
             self.column -= 1
             self.movement_H = True
 
-        # right clic
+        # Right click
         if keyMap["right"] and self.column != 6 and not self.movement_V:
             keyMap["right"] = False
             self.column += 1
@@ -125,16 +121,17 @@ class Connect4(ShowBase):
 
         # down clic
         if keyMap["down"] and self.gridContent[0][self.column] == 0 and not self.movement_V:
+            # To have only one click
             keyMap["down"] = False
 
-            # Compute new position
-            line_fixed = False
+            # Find the position
+            line_fixed = 0
             self.line = 5
-            while line_fixed == False and self.line >= 0 :
+            while line_fixed == 0 and self.line >= 0:
                 if self.gridContent[self.line][self.column] != 0:
                     self.line -= 1
-                else :
-                    line_fixed = True
+                else:
+                    line_fixed = 1
             self.movement_V = True
 
             # check if there is a victory or not
@@ -144,21 +141,20 @@ class Connect4(ShowBase):
             if victory == 2:
                 print("Yellow victory")
 
+        # Progressive vertical movement
         if self.movement_V and pos.z != self.axes_V[self.line]:
             pos.z -= 0.5
             self.discs[self.round].disc.setPos(pos)
 
-        # prepare next disc
+        # Set the disc position / Prepare next disc
         if self.movement_V and pos.z == self.axes_V[self.line]:
-            pos.z = self.axes_V[self.line]
+            self.movement_V = False
             self.line = 0
-            self.discs[self.round].disc.setPos(pos)
+            self.column = 3
             self.round += 1
             self.discs[self.round].disc.setPos(0, 40, 7.5)
-            self.movement_V = False
-            self.column = 3
 
-
+        # Horizontal movement
         if self.movement_H:
             pos.x = self.axes_H[self.column]
             self.discs[self.round].disc.setPos(pos)
