@@ -138,7 +138,11 @@ class Connect4(ShowBase):
             self.movement_V = True
 
             # check if there is a victory or not
-            self.check_victory()
+            victory = self.check_victory()
+            if victory == 1:
+                print("Red victory")
+            if victory == 2:
+                print("Yellow victory")
 
         if self.movement_V and pos.z != self.axes_V[self.line]:
             pos.z -= 0.5
@@ -164,25 +168,20 @@ class Connect4(ShowBase):
 
     def check_victory(self):
         if self.round % 2 == 0:
-            self.gridContent[self.line][self.column] = 1
-            self.gridContent2[7 * self.line + self.column] = 1
+            disc_type = 1
         else:
-            self.gridContent[self.line][self.column] = 2
-            self.gridContent2[7 * self.line + self.column] = 2
+            disc_type = 2
+        self.gridContent[self.line][self.column] = disc_type
+        self.gridContent2[7 * self.line + self.column] = disc_type
 
         for i in range(69):
             for j in range(4):
                 if self.results[i][j] == 7 * self.line + self.column:
-                    if (self.gridContent2[int(self.results[i][0])] == 1) and (
-                            self.gridContent2[int(self.results[i][1])] == 1) and (
-                            self.gridContent2[int(self.results[i][2])] == 1) and (
-                            self.gridContent2[int(self.results[i][3])] == 1):
-                        print("victoire rouge")
-                    if (self.gridContent2[int(self.results[i][0])] == 2) and (
-                            self.gridContent2[int(self.results[i][1])] == 2) and (
-                            self.gridContent2[int(self.results[i][2])] == 2) and (
-                            self.gridContent2[int(self.results[i][3])] == 2):
-                        print("victoire jaune")
+                    if (self.gridContent2[int(self.results[i][0])] == disc_type) and (
+                            self.gridContent2[int(self.results[i][1])] == disc_type) and (
+                            self.gridContent2[int(self.results[i][2])] == disc_type) and (
+                            self.gridContent2[int(self.results[i][3])] == disc_type):
+                        return disc_type
         return 0
 
 
