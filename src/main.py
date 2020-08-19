@@ -63,7 +63,7 @@ class Connect4(ShowBase):
         self.grid.setPos(0, 40, -6.5)
         self.axes_H = [-6, -4, -2, 0, 2, 4, 6]
         self.axes_V = [5, 3, 1, -1, -3, -5]
-        self.index = 3
+        self.column = 3
         self.line = 5
 
         # Discs management
@@ -88,14 +88,15 @@ class Connect4(ShowBase):
 
         # Grid content
         self.gridContent = np.zeros((6, 7))
+        self.gridContent2 = np.zeros(6*7)
 
         # Read csv file cases
-        results = []
+        self.results = []
         with open("../csv/cases.csv") as csvfile:
             reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  # change contents to floats
             for row in reader:  # each row is a list
-                results.append(row)
-        #print(results)
+                self.results.append(row)
+        #print(self.results)
 
         # Addition of an update function
         self.taskMgr.add(self.mainloop, "mainloop")
@@ -110,37 +111,50 @@ class Connect4(ShowBase):
 
 
         # left clic
-        if keyMap["left"] and self.index != 0 and not self.movement_V:
+        if keyMap["left"] and self.column != 0 and not self.movement_V:
             keyMap["left"] = False
-            self.index -= 1
+            self.column -= 1
             self.movement_H = True
 
         # right clic
-        if keyMap["right"] and self.index != 6 and not self.movement_V:
+        if keyMap["right"] and self.column != 6 and not self.movement_V:
             keyMap["right"] = False
-            self.index += 1
+            self.column += 1
             self.movement_H = True
 
         # down clic
-        if keyMap["down"] and self.gridContent[0][self.index] != 1 and not self.movement_V:
+        if keyMap["down"] and self.gridContent[0][self.column] == 0 and not self.movement_V:
             keyMap["down"] = False
 
             # Compute new position
             line_fixed = False
             self.line = 5
-            print("ok")
             while line_fixed == False and self.line >= 0 :
-                if self.gridContent[self.line][self.index] != 0:
+                if self.gridContent[self.line][self.column] != 0:
                     self.line -= 1
                 else :
                     line_fixed = True
-
-            print(self.line)
             self.movement_V = True
 
             # update presence grid
-            self.gridContent[self.line][self.index] = 1
-            print(self.gridContent)
+            if self.round % 2 == 0:
+                self.gridContent[self.line][self.column] = 1
+                self.gridContent2[7 * self.line + self.column] = 1
+            else:
+                self.gridContent[self.line][self.column] = 2
+                self.gridContent2[7 * self.line + self.column] = 2
+
+
+            #print(self.gridContent)
+            for i in range(69):
+                for j in range(4):
+                    if self.results[i][j] == 7*self.line+self.column:
+                        if (self.gridContent2[int(self.results[i][0])] == 1) and (self.gridContent2[int(self.results[i][1])] == 1) and (self.gridContent2[int(self.results[i][2])] == 1) and (self.gridContent2[int(self.results[i][3])] == 1) :
+                            print("victoire rouge")
+                        if (self.gridContent2[int(self.results[i][0])] == 2) and (self.gridContent2[int(self.results[i][1])] == 2) and (self.gridContent2[int(self.results[i][2])] == 2) and (self.gridContent2[int(self.results[i][3])] == 2) :
+                            print("victoire jaune")
+
+
 
         if self.movement_V and pos.z != self.axes_V[self.line]:
             pos.z -= 0.5
@@ -154,10 +168,11 @@ class Connect4(ShowBase):
             self.round += 1
             self.discs[self.round].disc.setPos(0, 40, 7.5)
             self.movement_V = False
-            self.index = 3
+            self.column = 3
+
 
         if self.movement_H:
-            pos.x = self.axes_H[self.index]
+            pos.x = self.axes_H[self.column]
             self.discs[self.round].disc.setPos(pos)
             self.movement_H = False
 
