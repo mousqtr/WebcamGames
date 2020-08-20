@@ -1,6 +1,13 @@
+# ----------------------------------------------------------------------
+# Connect 4
+# @author : Mustapha BENBRIKHO
+# ----------------------------------------------------------------------
+
+
 from panda3d.core import loadPrcFileData
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
+from direct.gui.OnscreenText import OnscreenText
 import numpy as np
 import csv
 
@@ -23,8 +30,8 @@ keyMap = {
 }
 
 
-# Function that updates the input map
 def updateKeyMap(key, state):
+    """ Function that updates the input map """
     keyMap[key] = state
 
 
@@ -39,6 +46,8 @@ class Disc:
 
 class Connect4(ShowBase):
     def __init__(self):
+        """ Initialization of the connect 4"""
+
         super().__init__()
 
         # Inputs management
@@ -66,7 +75,7 @@ class Connect4(ShowBase):
         self.column = 3
         self.line = 5
 
-        # Discs management
+        # Discs initialization
         self.red_texture = self.loader.loadTexture("../tex/red_plastic.jpg")
         self.yellow_texture = self.loader.loadTexture("../tex/yellow_plastic.jpg")
         self.discs = []
@@ -79,16 +88,15 @@ class Connect4(ShowBase):
                 self.color_disc = Disc(self.disc, self.yellow_texture)
             self.discs.append(self.color_disc)
 
+        # Other parameters initialization
         self.round = 0
         self.speed = 20
-
         self.discs[self.round].disc.setPos(0, 40, 7.5)
         self.movement_V = False
         self.movement_H = False
 
         # Grid content
-        self.gridContent = np.zeros((6, 7))
-        self.gridContent2 = np.zeros(6*7)
+        self.gridContent = np.zeros(6*7)
 
         # Read csv file cases
         self.results = []
@@ -100,9 +108,16 @@ class Connect4(ShowBase):
         # Addition of an update function
         self.taskMgr.add(self.mainloop, "mainloop")
 
+        # Victory text
+        font = self.loader.loadFont("../font/Roboto-Medium.ttf")
+        font.setPixelsPerUnit(60)
+        self.text_victory = OnscreenText(text='', pos=(1.4, -0.8), scale=0.1)
+        self.text_victory.setFg((0, 0, 0, 1))
+        self.text_victory.setBg((1, 1, 1, 0))
+        self.text_victory.setShadow((0.5, 0.5, 0.5, 1))
 
-    # Fonction d'actualisation
     def mainloop(self, task):
+        """ Main loop of the connect 4 game """
         dt = globalClock.getDt()
 
         pos = self.discs[self.round].disc.getPos()
@@ -120,7 +135,7 @@ class Connect4(ShowBase):
             self.movement_H = True
 
         # down clic
-        if keyMap["down"] and self.gridContent[0][self.column] == 0 and not self.movement_V:
+        if keyMap["down"] and self.gridContent[self.column] == 0 and not self.movement_V:
             # To have only one click
             keyMap["down"] = False
 
@@ -128,7 +143,7 @@ class Connect4(ShowBase):
             line_fixed = 0
             self.line = 5
             while line_fixed == 0 and self.line >= 0:
-                if self.gridContent[self.line][self.column] != 0:
+                if self.gridContent[7 * self.line + self.column] != 0:
                     self.line -= 1
                 else:
                     line_fixed = 1
@@ -137,9 +152,9 @@ class Connect4(ShowBase):
             # check if there is a victory or not
             victory = self.check_victory()
             if victory == 1:
-                print("Red victory")
+                self.text_victory.setText('Red wins')
             if victory == 2:
-                print("Yellow victory")
+                self.text_victory.setText('Yellow wins')
 
         # Progressive vertical movement
         if self.movement_V and pos.z != self.axes_V[self.line]:
@@ -162,25 +177,30 @@ class Connect4(ShowBase):
 
         return task.cont
 
+
     def check_victory(self):
+        """
+        Function that check if there is a victory case
+        @return 1 if red wins and 2 if yellow wins
+        """
+
         if self.round % 2 == 0:
             disc_type = 1
         else:
             disc_type = 2
-        self.gridContent[self.line][self.column] = disc_type
-        self.gridContent2[7 * self.line + self.column] = disc_type
+        self.gridContent[7 * self.line + self.column] = disc_type
 
         for i in range(69):
             for j in range(4):
                 if self.results[i][j] == 7 * self.line + self.column:
-                    if (self.gridContent2[int(self.results[i][0])] == disc_type) and (
-                            self.gridContent2[int(self.results[i][1])] == disc_type) and (
-                            self.gridContent2[int(self.results[i][2])] == disc_type) and (
-                            self.gridContent2[int(self.results[i][3])] == disc_type):
+                    if (self.gridContent[int(self.results[i][0])] == disc_type) and (
+                            self.gridContent[int(self.results[i][1])] == disc_type) and (
+                            self.gridContent[int(self.results[i][2])] == disc_type) and (
+                            self.gridContent[int(self.results[i][3])] == disc_type):
                         return disc_type
         return 0
 
 
-# Boucle principal
+# Main loop
 game = Connect4()
 game.run()
