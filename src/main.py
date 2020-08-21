@@ -84,7 +84,7 @@ class Connect4(ShowBase):
         self.red_texture = self.loader.loadTexture("../tex/red_plastic.jpg")
         self.yellow_texture = self.loader.loadTexture("../tex/yellow_plastic.jpg")
         self.discs = []
-        for i in range(0, 43):
+        for i in range(0, 44):
             self.disc = self.loader.loadModel("../models/disc")
             self.disc.reparentTo(self.render)
             if i % 2 == 0:
@@ -95,6 +95,7 @@ class Connect4(ShowBase):
 
         # Other parameters initialization
         self.round = 0
+        self.player = 1
         self.speed = 20
         self.discs[self.round].disc.setPos(0, 40, 7.5)
         self.movement_V = False
@@ -125,7 +126,7 @@ class Connect4(ShowBase):
         def new_game():
             print("New game ...")
             self.gridContent = np.zeros(6 * 7)
-            for i in range(0, 43):
+            for i in range(0, 44):
                 self.discs[i].disc.setPos(0, 0, 7.5)
             self.round = 0
             self.discs[self.round].disc.setPos(0, 40, 7.5)
@@ -146,13 +147,17 @@ class Connect4(ShowBase):
             last_line = f1.readlines()[-1]
             f1.close()
             last_line_line = last_line.split(',')
+            k = 0
+            p = 1
             for i in range(0, 42):
                 col = i % 7
                 line = i // 7
                 if last_line_line[i] == '1.0':
-                    self.discs[i].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    self.discs[k].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    k += 2
                 elif last_line_line[i] == '2.0':
-                    self.discs[i].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    self.discs[p].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    p += 2
             #print(last_line.split(','))
 
 
