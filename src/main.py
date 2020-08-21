@@ -121,19 +121,54 @@ class Connect4(ShowBase):
         self.text_victory.setBg((1, 1, 1, 0))
         self.text_victory.setShadow((0.5, 0.5, 0.5, 1))
 
-        # Button
-        textObject = OnscreenText(text="Hello guys", pos=(-1, -0.8), scale=0.07,
-                                  fg=(0, 0, 1, 1), align=TextNode.ACenter,
-                                  mayChange=1)
-        def setText():
-            bk_text = "Button Clicked"
-            textObject.setText(bk_text)
+        # Button new game
+        def new_game():
+            print("New game ...")
+            self.gridContent = np.zeros(6 * 7)
+            for i in range(0, 43):
+                self.discs[i].disc.setPos(0, 0, 7.5)
+            self.round = 0
+            self.discs[self.round].disc.setPos(0, 40, 7.5)
+            self.text_victory.setText('')
 
-        new_game_button = DirectButton(text="New game", pos=(-1.5, 0, 0.9), frameSize = (-3,3,-0.5,1),
-                         scale=.1, text_scale=0.9, command=setText)
+        # Button save game
+        def save_game():
+            print("Save the game ...")
+            grid_content_str = ','.join([str(elem) for elem in self.gridContent])
+            f = open("../safeguard/safeguard.txt", "a")
+            f.write(grid_content_str + "\n")
+            f.close()
 
-        load_game_button = DirectButton(text="Load", pos=(-1.5, 0, 0.75), frameSize = (-3,3,-0.5,1),
-                         scale=.1, text_scale=0.9, command=setText)
+        # Button load game
+        def load_game():
+            print("Load a game ...")
+            f1 = open("../safeguard/safeguard.txt", "r")
+            last_line = f1.readlines()[-1]
+            f1.close()
+            last_line_line = last_line.split(',')
+            for i in range(0, 42):
+                col = i % 7
+                line = i // 7
+                if last_line_line[i] == '1.0':
+                    self.discs[i].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                elif last_line_line[i] == '2.0':
+                    self.discs[i].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+            #print(last_line.split(','))
+
+
+        # Button 1
+        self.new_game_button = DirectButton(text="New game", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1),
+                                       scale=.1, text_scale=0.9, command=new_game)
+
+        # Button 2
+        self.load_game_button = DirectButton(text="Load", pos=(-1.5, 0, 0.75), frameSize=(-3, 3, -0.5, 1),
+                         scale=.1, text_scale=0.9, command=load_game)
+
+        # Button 2
+        self.load_game_button = DirectButton(text="Save", pos=(-1.5, 0, 0.60), frameSize=(-3, 3, -0.5, 1),
+                         scale=.1, text_scale=0.9, command=save_game)
+        self.button_changed = False
+
 
 
 
@@ -202,6 +237,10 @@ class Connect4(ShowBase):
             self.discs[self.round].disc.setPos(pos)
             self.movement_H = False
 
+        if self.round == 1 and self.button_changed == False:
+            self.new_game_button["text"] = "Restart"
+            self.button_changed = True
+
         return task.cont
 
 
@@ -226,6 +265,8 @@ class Connect4(ShowBase):
                             self.gridContent[int(self.results[i][3])] == disc_type):
                         return disc_type
         return 0
+
+
 
 
 # Main loop
