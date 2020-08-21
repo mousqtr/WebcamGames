@@ -5,9 +5,12 @@
 
 
 from panda3d.core import loadPrcFileData
+from panda3d.core import TextNode
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from direct.gui.OnscreenText import OnscreenText
+from direct.gui.DirectButton import DirectButton
+
 import numpy as np
 import csv
 
@@ -16,8 +19,10 @@ win-size 1280 720
 window-title Titre
 undecorated false
 show-frame-rate-meter true
-show-scene-graph-analyzer-meter 1
+show-scene-graph-analyzer-meter 0
 sync-video 1
+win-fixed-size 0
+aspect-ratio 1.8
 """
 
 loadPrcFileData("", confVars)
@@ -47,7 +52,7 @@ class Disc:
 class Connect4(ShowBase):
     def __init__(self):
         """ Initialization of the connect 4"""
-
+        print('Connect4 created.')
         super().__init__()
 
         # Inputs management
@@ -115,6 +120,28 @@ class Connect4(ShowBase):
         self.text_victory.setFg((0, 0, 0, 1))
         self.text_victory.setBg((1, 1, 1, 0))
         self.text_victory.setShadow((0.5, 0.5, 0.5, 1))
+
+        # Button
+        textObject = OnscreenText(text="Hello guys", pos=(-1, -0.8), scale=0.07,
+                                  fg=(0, 0, 1, 1), align=TextNode.ACenter,
+                                  mayChange=1)
+        def setText():
+            bk_text = "Button Clicked"
+            textObject.setText(bk_text)
+
+        new_game_button = DirectButton(text="New game", pos=(-1.5, 0, 0.9), frameSize = (-3,3,-0.5,1),
+                         scale=.1, text_scale=0.9, command=setText)
+
+        load_game_button = DirectButton(text="Load", pos=(-1.5, 0, 0.75), frameSize = (-3,3,-0.5,1),
+                         scale=.1, text_scale=0.9, command=setText)
+
+
+
+
+
+
+    def __del__(self):
+        print('Destructor called, connect4 deleted.')
 
     def mainloop(self, task):
         """ Main loop of the connect 4 game """
