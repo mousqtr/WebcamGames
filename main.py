@@ -137,20 +137,24 @@ class Connect4(ShowBase):
             f1 = open("safeguard/safeguard.txt", "r")
             last_line = f1.readlines()[-1]
             f1.close()
-            last_line_line = last_line.split(',')
+            last_line_list = last_line.split(',')
             k = 0
             p = 1
+            round = 0
             for i in range(0, 42):
                 col = i % 7
                 line = i // 7
-                if last_line_line[i] == '1.0':
+                if last_line_list[i] == '1.0':
                     self.discs[k].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
                     k += 2
-                elif last_line_line[i] == '2.0':
+                    round += 1
+                elif last_line_list[i] == '2.0':
                     self.discs[p].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
                     p += 2
-            #print(last_line.split(','))
-
+                    round += 1
+            self.round = round
+            self.discs[self.round].disc.setPos(0, 40, 7.5)
+            self.gridContent = [int(float(j)) for j in last_line_list]
 
         # Button 1
         self.new_game_button = DirectButton(text="New game", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1),
