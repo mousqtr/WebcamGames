@@ -20,7 +20,7 @@ win-origin -2 -2
 # when that fails, the next aux-display line, and so on.
 
 load-display pandagl
-aux-display pandadx9
+load-display pandagl
 
 
 # Uncomment this line if you want to run Panda fullscreen instead of

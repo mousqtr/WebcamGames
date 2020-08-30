@@ -5,9 +5,9 @@
 
 
 from panda3d.core import loadPrcFile
-from panda3d.core import TextNode
+# from panda3d.core import TextNode
 from direct.showbase.ShowBase import ShowBase
-from direct.actor.Actor import Actor
+# from direct.actor.Actor import Actor
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.DirectButton import DirectButton
 
