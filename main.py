@@ -7,8 +7,9 @@
 from panda3d.core import loadPrcFile
 # from panda3d.core import TextNode
 from direct.showbase.ShowBase import ShowBase
-# from direct.actor.Actor import Actor
+from direct.actor.Actor import Actor
 from direct.gui.OnscreenText import OnscreenText
+from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.DirectButton import DirectButton
 
 import numpy as np
@@ -36,8 +37,8 @@ class Disc:
         self.disc = disc
         self.color = color
         self.disc.setTexture(color)
-        self.disc.setPos(0, 0, 7.5)
-        self.disc.setScale(0.75, 0.75, 0.75)
+        self.disc.setPos(0, 0, 6)
+        self.disc.setScale(0.5, 0.5, 0.5)
 
 
 class Connect4(ShowBase):
@@ -45,6 +46,23 @@ class Connect4(ShowBase):
         """ Initialization of the connect 4"""
         print('Connect4 created.')
         super().__init__()
+
+        self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg") # Load an image object
+        self.cam2dp.node().getDisplayRegion(0).setSort(-20)
+
+        # Load the avatar
+        self.arm = Actor("models/Tatsumi_models/Tatsumi_1", {"anim1": "models/Tatsumi_models/Tatsumi_1_anim"})
+        self.arm.setPos(0, 50, -36)
+        self.arm.setScale(20, 20, 20)
+        self.arm.reparentTo(self.render)
+        self.arm.play("anim1")
+
+        # Load the table
+        self.table = self.loader.loadModel("models/table")
+        self.table.reparentTo(self.render)
+        self.table.setPos(0, 30, -8)
+        self.table.setScale(2, 2, 2)
+        self.table.setHpr(90, 0, 0)
 
         # Inputs management
         self.accept("arrow_left", updateKeyMap, ["left", True])
@@ -55,7 +73,7 @@ class Connect4(ShowBase):
         self.accept("arrow_down-up", updateKeyMap, ["down", False])
 
         # General settings
-        self.disable_mouse()
+        # self.disable_mouse()
         self.set_background_color(1, 1, 0.9)
 
         # Grid management
@@ -64,10 +82,10 @@ class Connect4(ShowBase):
         self.blue_grid = self.loader.loadTexture("tex/blue_plastic.jpg")
         self.grid.setTexture(self.blue_grid)
         self.grid.setHpr(90, 0, 0)
-        self.grid.setScale(1, 1, 1)
-        self.grid.setPos(0, 40, -6.5)
-        self.axes_H = [-6, -4, -2, 0, 2, 4, 6]
-        self.axes_V = [5, 3, 1, -1, -3, -5]
+        self.grid.setScale(0.6, 0.6, 0.6)
+        self.grid.setPos(0, 30, -6.5)
+        self.axes_H = [-3.6, -2.4, -1.2, 0, 1.2, 2.4, 3.6]
+        self.axes_V = [0.25, -1.0, -2.25, -3.5, -4.75, -6]
         self.column = 3
         self.line = 5
 
@@ -87,8 +105,8 @@ class Connect4(ShowBase):
         # Other parameters initialization
         self.round = 0
         self.player = 1
-        self.speed = 20
-        self.discs[self.round].disc.setPos(0, 40, 7.5)
+        self.speed = 40
+        self.discs[self.round].disc.setPos(0, 30, 1.5)
         self.movement_V = False
         self.movement_H = False
 
@@ -118,9 +136,9 @@ class Connect4(ShowBase):
             print("New game ...")
             self.gridContent = np.zeros(6 * 7)
             for i in range(0, 44):
-                self.discs[i].disc.setPos(0, 0, 7.5)
+                self.discs[i].disc.setPos(0, 0, 1.5)
             self.round = 0
-            self.discs[self.round].disc.setPos(0, 40, 7.5)
+            self.discs[self.round].disc.setPos(0, 30, 1.5)
             self.text_victory.setText('')
 
         # Button save game
@@ -145,15 +163,15 @@ class Connect4(ShowBase):
                 col = i % 7
                 line = i // 7
                 if last_line_list[i] == '1.0':
-                    self.discs[k].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    self.discs[k].disc.setPos(self.axes_H[col], 30, self.axes_V[line])
                     k += 2
                     round += 1
                 elif last_line_list[i] == '2.0':
-                    self.discs[p].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    self.discs[p].disc.setPos(self.axes_H[col], 30, self.axes_V[line])
                     p += 2
                     round += 1
             self.round = round
-            self.discs[self.round].disc.setPos(0, 40, 7.5)
+            self.discs[self.round].disc.setPos(0, 30, 1.5)
             self.gridContent = [int(float(j)) for j in last_line_list]
 
         # Button 1
@@ -220,7 +238,7 @@ class Connect4(ShowBase):
 
         # Progressive vertical movement
         if self.movement_V and pos.z != self.axes_V[self.line]:
-            pos.z -= 0.5
+            pos.z -= 0.25
             self.discs[self.round].disc.setPos(pos)
 
         # Set the disc position / Prepare next disc
@@ -229,7 +247,7 @@ class Connect4(ShowBase):
             self.line = 0
             self.column = 3
             self.round += 1
-            self.discs[self.round].disc.setPos(0, 40, 7.5)
+            self.discs[self.round].disc.setPos(0, 30, 1.5)
 
         # Horizontal movement
         if self.movement_H:
