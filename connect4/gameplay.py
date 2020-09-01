@@ -108,6 +108,10 @@ def init(base):
     base.text_victory.setBg((1, 1, 1, 0))
     base.text_victory.setShadow((0.5, 0.5, 0.5, 1))
 
+    #
+    base.audio_coin = base.loader.loadMusic("audio/coin.ogg")
+
+
     # Button load game
     def load_game():
         print("Load a game ...")
@@ -217,6 +221,7 @@ def mainloop(base):
 
     # Set the disc position / Prepare next disc
     if base.movement_V and pos.z == base.axes_V[base.line]:
+        base.audio_coin.play()
         base.movement_V = False
         base.line = 0
         base.column = 3
