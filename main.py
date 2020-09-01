@@ -1,6 +1,7 @@
 # ----------------------------------------------------------------------
-# Connect 4
+# @app    : Main program
 # @author : Mustapha BENBRIKHO
+# @date   : 14/08/2020
 # ----------------------------------------------------------------------
 
 from connect4.gameplay import init
@@ -23,6 +24,9 @@ class Main(ShowBase):
         print('General > Initialization')
         super().__init__()
 
+        # General settings
+        self.disable_mouse()
+
         self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg") # Load an image object
         self.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
@@ -31,6 +35,7 @@ class Main(ShowBase):
         self.arm.setPos(0, 50, -36)
         self.arm.setScale(20, 20, 20)
         self.arm.reparentTo(self.render)
+        self.arm.setPlayRate(4, "anim1")
         self.arm.play("anim1")
 
         # Button
