@@ -3,7 +3,6 @@
 # @author : Mustapha BENBRIKHO
 # ----------------------------------------------------------------------
 
-
 from panda3d.core import loadPrcFile
 # from panda3d.core import TextNode
 from direct.showbase.ShowBase import ShowBase
@@ -11,6 +10,7 @@ from direct.actor.Actor import Actor
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.DirectButton import DirectButton
+from direct.showbase.ShowBaseGlobal import globalClock
 
 import numpy as np
 import csv
@@ -46,6 +46,7 @@ class Connect4(ShowBase):
         """ Initialization of the connect 4"""
         print('Connect4 created.')
         super().__init__()
+        
 
         self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg") # Load an image object
         self.cam2dp.node().getDisplayRegion(0).setSort(-20)
@@ -137,6 +138,9 @@ class Connect4(ShowBase):
             self.gridContent = np.zeros(6 * 7)
             for i in range(0, 44):
                 self.discs[i].disc.setPos(0, 0, 1.5)
+
+            for index in range(0, 44):
+                self.discs[index].disc.setPos(0, 0, 7.5)
             self.round = 0
             self.discs[self.round].disc.setPos(0, 30, 1.5)
             self.text_victory.setText('')
@@ -158,8 +162,8 @@ class Connect4(ShowBase):
             last_line_list = last_line.split(',')
             k = 0
             p = 1
-            round = 0
-            for i in range(0, 42):
+            round_ = 0
+            for index in range(0, 42):
                 col = i % 7
                 line = i // 7
                 if last_line_list[i] == '1.0':
@@ -172,6 +176,16 @@ class Connect4(ShowBase):
                     round += 1
             self.round = round
             self.discs[self.round].disc.setPos(0, 30, 1.5)
+                if last_line_list[index] == '1.0':
+                    self.discs[k].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    k += 2
+                    round_ += 1
+                elif last_line_list[index] == '2.0':
+                    self.discs[p].disc.setPos(self.axes_H[col], 40, self.axes_V[line])
+                    p += 2
+                    round_ += 1
+            self.round = round_
+            self.discs[self.round].disc.setPos(0, 40, 7.5)
             self.gridContent = [int(float(j)) for j in last_line_list]
 
         # Button 1
