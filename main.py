@@ -20,7 +20,7 @@ loadPrcFile("config/Confauto.prc")
 class Main(ShowBase):
     def __init__(self):
         """ Initialization of the connect 4"""
-        print('Connect4 created.')
+        print('General > Initialization')
         super().__init__()
 
         self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg") # Load an image object
@@ -39,7 +39,7 @@ class Main(ShowBase):
             self.taskMgr.add(self.loop, "loop")
 
 
-        self.new_game_button = DirectButton(text="New game", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1),
+        self.new_game_button = DirectButton(text="Connect 4", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1),
                                         scale=.1, text_scale=0.9, command=run_connect4)
 
     def loop(self, task):
