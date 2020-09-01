@@ -121,17 +121,17 @@ def init(base):
         for i in range(0, 42):
             col = i % 7
             line = i // 7
-            if last_line_list[i] == '1.0':
+            if last_line_list[i] == '1':
                 base.discs[k].disc.setPos(base.axes_H[col], 30, base.axes_V[line])
                 k += 2
                 round += 1
-            elif last_line_list[i] == '2.0':
+            elif last_line_list[i] == '2':
                 base.discs[p].disc.setPos(base.axes_H[col], 30, base.axes_V[line])
                 p += 2
                 round += 1
         base.round = round
         base.discs[base.round].disc.setPos(0, 30, 1.5)
-        base.gridContent = [int(float(j)) for j in last_line_list]
+        base.gridContent = [j for j in last_line_list]
 
     # Button new game
     def new_game():
@@ -146,7 +146,8 @@ def init(base):
     # Button save game
     def save_game():
         print("Save the game ...")
-        grid_content_str = ','.join([str(elem) for elem in base.gridContent])
+        grid = [int(j) for j in base.gridContent]
+        grid_content_str = ','.join([str(elem) for elem in grid])
         f = open("safeguard/safeguard.txt", "a")
         f.write(grid_content_str + "\n")
         f.close()
