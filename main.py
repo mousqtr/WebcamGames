@@ -27,7 +27,7 @@ class Main(ShowBase):
         # General settings
         self.disable_mouse()
 
-        self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg") # Load an image object
+        self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg")
         self.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
         # Load the avatar
@@ -44,21 +44,13 @@ class Main(ShowBase):
             self.taskMgr.add(self.loop, "loop")
 
 
-        self.new_game_button = DirectButton(text="Connect 4", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1),
-                                        scale=.1, text_scale=0.9, command=run_connect4)
+        self.new_game_button = DirectButton(text="Connect 4", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=run_connect4)
+
 
     def loop(self, task):
         mainloop(self)
         return task.cont
 
-
-        # run the game
-        #loop(self)
-
-
-
-# game = Connect4()
-# game.run()
 
 env = Main()
 env.run()

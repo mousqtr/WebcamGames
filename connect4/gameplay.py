@@ -38,11 +38,10 @@ def init_grid(self):
     print("Connect 4 > Load the grid")
     self.grid = self.loader.loadModel("connect4/models/grid")
     self.grid.reparentTo(self.render)
-    self.blue_grid = self.loader.loadTexture("connect4/tex/blue_plastic.jpg")
-    self.grid.setTexture(self.blue_grid)
+    self.grid.setColor(0.1, 0.2, 0.8, 1.0)
     self.grid.setHpr(90, 0, 0)
-    self.grid.setScale(0.6, 0.6, 0.6)
-    self.grid.setPos(0, 30, -6.5)
+    self.grid.setScale(0.6, 0.6, 0.625)
+    self.grid.setPos(3.6, 30, -6)
     self.gridContent = np.zeros(6*7)
 
 
@@ -152,8 +151,7 @@ def init_load_button(self):
         self.discs[self.round].disc.setPos(0, 30, 1.5)
         self.gridContent = [int(j) for j in last_line_list]
 
-    self.load_game_button = DirectButton(text="Load", pos=(-1.5, 0, 0.75), frameSize=(-3, 3, -0.5, 1), scale=.1,
-                                         text_scale=0.9, command=load_game)
+    self.load_game_button = DirectButton(text="Load", pos=(-1.5, 0, 0.75), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=load_game)
 
 
 def init_new_button(self):
@@ -298,7 +296,3 @@ def mainloop(base):
         base.new_game_button["text"] = "Restart"
         base.button_changed = True
         print("Connect 4 > Main loop")
-
-
-
-
