@@ -333,3 +333,5 @@ def mainloop(base):
         base.new_game_button["text"] = "Restart"
         base.button_changed = True
         print("Connect 4 > Main loop")
+
+    return 1

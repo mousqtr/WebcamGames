@@ -11,7 +11,9 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from panda3d.core import loadPrcFile
+from panda3d.core import TransparencyAttrib
 from direct.gui.DirectButton import DirectButton
+
 
 loadPrcFile("config/Confinit.prc")
 loadPrcFile("config/Config.prc")
@@ -38,17 +40,28 @@ class Main(ShowBase):
         self.arm.setPlayRate(4, "anim1")
         self.arm.play("anim1")
 
-        # Button
-        def run_connect4():
-            init(self)
-            self.taskMgr.add(self.loop, "loop")
+        self.icon_connect4 = DirectButton(image="img/icon_connect4.png", pos=(-1.5, 0, -0.8), scale=(0.2, 0.2, 0.2),
+                                          relief=None, command=self.run_connect4)
+        self.icon_connect4.setTransparency(TransparencyAttrib.MAlpha)
 
-        self.new_game_button = DirectButton(text="Connect 4", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=run_connect4)
+    def run_connect4(self):
+        print("General > Run the Connect 4")
+        self.hide_elements()
+        init(self)
+        self.taskMgr.add(self.loop, "loop")
 
+    def show_elements(self):
+        self.icon_connect4.show()
+
+    def hide_elements(self):
+        self.icon_connect4.hide()
 
     def loop(self, task):
-        mainloop(self)
-        return task.cont
+        if mainloop(self) == 0:
+            self.show_elements()
+            return task.done
+        else:
+            return task.cont
 
 
 env = Main()
