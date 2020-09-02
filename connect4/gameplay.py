@@ -6,6 +6,8 @@
 
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.DirectButton import DirectButton
+from direct.interval.IntervalGlobal import Parallel, Sequence
+from panda3d.core import Point3
 
 import numpy as np
 import csv
@@ -27,9 +29,12 @@ def init_table(self):
     print("Connect 4 > Load the table")
     self.table = self.loader.loadModel("connect4/models/table")
     self.table.reparentTo(self.render)
-    self.table.setPos(0, 30, -8)
     self.table.setScale(2, 2, 2)
     self.table.setHpr(90, 0, 0)
+    self.table_anim = self.table.posInterval(3, Point3(0, 30, -8), startPos=Point3(0, 0, -8))
+
+    # self.table.setPos(0, 30, -8)
+
 
 
 def init_grid(self):
@@ -40,7 +45,8 @@ def init_grid(self):
     self.grid.setColor(0.1, 0.2, 0.8, 1.0)
     self.grid.setHpr(90, 0, 0)
     self.grid.setScale(0.6, 0.6, 0.625)
-    self.grid.setPos(3.6, 30, -6)
+    self.grid_anim = self.grid.posInterval(3, Point3(3.6, 30, -6), startPos=Point3(3.6, 30, 0))
+    # self.grid.setPos(3.6, 30, -6)
     self.gridContent = np.zeros(6*7)
 
 
@@ -77,14 +83,15 @@ def init_discs(self):
             self.color_disc = Disc(self.disc, 1.0, 1.0, 0.0)
         self.discs.append(self.color_disc)
 
+    self.round = 0
+    self.first_disc_anim = self.discs[self.round].disc.posInterval(3, Point3(0, 30, 1.5), startPos=Point3(0, 0, 8))
+
 
 def init_general_parameters(self):
     """ General parameters initialization """
     print("Connect 4 > Load general parameters (round, player ...)")
-    self.round = 0
     self.player = 1
     self.speed = 15
-    self.discs[self.round].disc.setPos(0, 30, 1.5)
     self.movement_V = False
     self.movement_H = False
     self.axes_H = [-3.6, -2.4, -1.2, 0, 1.2, 2.4, 3.6]
@@ -214,8 +221,12 @@ def init(base):
     print('Connect 4 > Initialization')
     init_table(base)
     init_grid(base)
-    init_keyboard(base)
     init_discs(base)
+
+    base.init_sequence = Parallel(base.table_anim, base.grid_anim,base.first_disc_anim, name="p1")
+    base.init_sequence.start()
+
+    init_keyboard(base)
     init_general_parameters(base)
     init_victory_cases(base)
     init_victory_message(base)
