@@ -14,11 +14,10 @@ import csv
 class Disc:
     """ Creation of a disc """
 
-    def __init__(self, disc, color):
+    def __init__(self, disc, r, g, b):
         """ Initialization of a disc """
         self.disc = disc
-        self.color = color
-        self.disc.setTexture(color)
+        self.disc.setColor(r, g, b, 1.0)
         self.disc.setPos(0, 0, 6)
         self.disc.setScale(0.5, 0.5, 0.5)
 
@@ -68,16 +67,14 @@ def init_keyboard(self):
 def init_discs(self):
     """ Discs initialization """
     print("Connect 4 > Load the discs")
-    self.red_texture = self.loader.loadTexture("connect4/tex/red_plastic.jpg")
-    self.yellow_texture = self.loader.loadTexture("connect4/tex/yellow_plastic.jpg")
     self.discs = []
     for i in range(0, 44):
         self.disc = self.loader.loadModel("connect4/models/disc")
         self.disc.reparentTo(self.render)
         if i % 2 == 0:
-            self.color_disc = Disc(self.disc, self.red_texture)
+            self.color_disc = Disc(self.disc, 1.0, 0.0, 0.0)
         else:
-            self.color_disc = Disc(self.disc, self.yellow_texture)
+            self.color_disc = Disc(self.disc, 1.0, 1.0, 0.0)
         self.discs.append(self.color_disc)
 
 
