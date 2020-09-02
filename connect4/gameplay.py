@@ -50,6 +50,29 @@ def init_grid(self):
     self.gridContent = np.zeros(6*7)
 
 
+def init_discs(self):
+    """ Discs initialization """
+    print("Connect 4 > Load the discs")
+    self.discs = []
+    self.nb_discs = 44
+    for i in range(0, self.nb_discs):
+        self.disc = self.loader.loadModel("connect4/models/disc")
+        self.disc.reparentTo(self.render)
+        if i % 2 == 0:
+            self.color_disc = Disc(self.disc, 1.0, 0.0, 0.0)
+        else:
+            self.color_disc = Disc(self.disc, 1.0, 1.0, 0.0)
+        self.discs.append(self.color_disc)
+
+    self.round = 0
+    self.first_disc_anim = self.discs[self.round].disc.posInterval(3, Point3(0, 30, 1.5), startPos=Point3(0, 0, 8))
+
+
+def table_grid_disc_animation(self):
+    self.init_sequence = Parallel(self.table_anim, self.grid_anim,self.first_disc_anim, name="p1")
+    self.init_sequence.start()
+
+
 # Keyboard inputs map
 keyMap = {"left": False,"right": False,"down": False}
 
@@ -70,23 +93,6 @@ def init_keyboard(self):
     self.accept("arrow_down-up", updateKeyMap, ["down", False])
 
 
-def init_discs(self):
-    """ Discs initialization """
-    print("Connect 4 > Load the discs")
-    self.discs = []
-    for i in range(0, 44):
-        self.disc = self.loader.loadModel("connect4/models/disc")
-        self.disc.reparentTo(self.render)
-        if i % 2 == 0:
-            self.color_disc = Disc(self.disc, 1.0, 0.0, 0.0)
-        else:
-            self.color_disc = Disc(self.disc, 1.0, 1.0, 0.0)
-        self.discs.append(self.color_disc)
-
-    self.round = 0
-    self.first_disc_anim = self.discs[self.round].disc.posInterval(3, Point3(0, 30, 1.5), startPos=Point3(0, 0, 8))
-
-
 def init_general_parameters(self):
     """ General parameters initialization """
     print("Connect 4 > Load general parameters (round, player ...)")
@@ -98,6 +104,7 @@ def init_general_parameters(self):
     self.axes_V = [0.25, -1.0, -2.25, -3.5, -4.75, -6]
     self.column = 3
     self.line = 5
+    self.quit_game = False
 
 
 def init_victory_cases(self):
@@ -178,7 +185,7 @@ def init_new_button(self):
 
 
 def init_save_button(self):
-    """ New game functions used for new game button """
+    """ Save game functions used for same the game button """
     print("Connect 4 > Load save button ")
 
     def save_game():
@@ -190,7 +197,27 @@ def init_save_button(self):
         f.write(grid_content_str + "\n")
         f.close()
 
-    self.save_game_button = DirectButton(text="Save", pos=(-1.5, 0, 0.60), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=save_game)
+    self.save_game_button = DirectButton(text="Save", pos=(-1.5, 0, 0.6), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=save_game)
+
+
+def init_quit_button(self):
+    """ Quit game functions used for new game button """
+    print("Connect 4 > Load quit button ")
+
+    def quit_game():
+        """ Quit game functions used for quit game button """
+        print("Connect 4 > Quit the game")
+        self.grid.removeNode()
+        self.table.removeNode()
+        for i in range(0, self.nb_discs):
+            self.discs[i].disc.removeNode()
+        self.new_game_button.destroy()
+        self.save_game_button.destroy()
+        self.load_game_button.destroy()
+        self.quit_game_button.destroy()
+        self.quit_game = True
+
+    self.quit_game_button = DirectButton(text="Quit", pos=(-1.5, 0, -0.95), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=quit_game)
 
 
 def check_victory(self):
@@ -222,10 +249,7 @@ def init(base):
     init_table(base)
     init_grid(base)
     init_discs(base)
-
-    base.init_sequence = Parallel(base.table_anim, base.grid_anim,base.first_disc_anim, name="p1")
-    base.init_sequence.start()
-
+    table_grid_disc_animation(base)
     init_keyboard(base)
     init_general_parameters(base)
     init_victory_cases(base)
@@ -234,10 +258,13 @@ def init(base):
     init_load_button(base)
     init_new_button(base)
     init_save_button(base)
+    init_quit_button(base)
 
 
 def mainloop(base):
     """ Main loop of the connect 4 game """
+    if base.quit_game:
+        return 0
 
     # Get the clock
     dt = globalClock.getDt()

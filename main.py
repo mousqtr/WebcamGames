@@ -43,7 +43,6 @@ class Main(ShowBase):
             init(self)
             self.taskMgr.add(self.loop, "loop")
 
-
         self.new_game_button = DirectButton(text="Connect 4", pos=(-1.5, 0, 0.9), frameSize=(-3, 3, -0.5, 1), scale=.1, text_scale=0.9, command=run_connect4)
 
 
