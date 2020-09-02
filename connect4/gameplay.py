@@ -83,7 +83,7 @@ def init_general_parameters(self):
     print("Connect 4 > Load general parameters (round, player ...)")
     self.round = 0
     self.player = 1
-    self.speed = 40
+    self.speed = 15
     self.discs[self.round].disc.setPos(0, 30, 1.5)
     self.movement_V = False
     self.movement_H = False
@@ -269,12 +269,14 @@ def mainloop(base):
             base.text_victory.setText('Yellow wins')
 
     # Progressive vertical movement
-    if base.movement_V and pos.z != base.axes_V[base.line]:
-        pos.z -= 0.25
+    if base.movement_V and pos.z >= base.axes_V[base.line]:
+        pos.z -= base.speed * dt
         base.discs[base.round].disc.setPos(pos)
 
     # Set the disc position / Prepare next disc
-    if base.movement_V and pos.z == base.axes_V[base.line]:
+    if base.movement_V and pos.z <= base.axes_V[base.line]:
+        pos.z = base.axes_V[base.line]
+        base.discs[base.round].disc.setPos(pos)
         base.audio_coin.play()
         base.movement_V = False
         base.line = 0

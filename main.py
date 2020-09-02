@@ -25,7 +25,7 @@ class Main(ShowBase):
         super().__init__()
 
         # General settings
-        self.disable_mouse()
+        # self.disable_mouse()
 
         self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg")
         self.cam2dp.node().getDisplayRegion(0).setSort(-20)
