@@ -31,10 +31,8 @@ def init_table(self):
     self.table.reparentTo(self.render)
     self.table.setScale(2, 2, 2)
     self.table.setHpr(90, 0, 0)
-    self.table_anim = self.table.posInterval(3, Point3(0, 30, -8), startPos=Point3(0, 0, -8))
-
-    # self.table.setPos(0, 30, -8)
-
+    self.table_anim_start = self.table.posInterval(3, Point3(0, 30, -8), startPos=Point3(0, 0, -8))
+    self.table_anim_end = self.table.posInterval(3, Point3(0, 0, -8), startPos=Point3(0, 30, -8))
 
 
 def init_grid(self):
@@ -45,8 +43,8 @@ def init_grid(self):
     self.grid.setColor(0.1, 0.2, 0.8, 1.0)
     self.grid.setHpr(90, 0, 0)
     self.grid.setScale(0.6, 0.6, 0.625)
-    self.grid_anim = self.grid.posInterval(3, Point3(3.6, 30, -6), startPos=Point3(3.6, 30, 0))
-    # self.grid.setPos(3.6, 30, -6)
+    self.grid_anim_start = self.grid.posInterval(3, Point3(3.6, 30, -6), startPos=Point3(3.6, 30, 0))
+    self.grid_anim_end = self.grid.posInterval(3, Point3(3.6, 30, 0), startPos=Point3(3.6, 30, -6))
     self.gridContent = np.zeros(6*7)
 
 
@@ -68,10 +66,9 @@ def init_discs(self):
     self.first_disc_anim = self.discs[self.round].disc.posInterval(3, Point3(0, 30, 1.5), startPos=Point3(0, 0, 8))
 
 
-def table_grid_disc_animation(self):
-    self.init_sequence = Parallel(self.table_anim, self.grid_anim,self.first_disc_anim, name="p1")
+def run_start_animation(self):
+    self.init_sequence = Parallel(self.table_anim_start, self.grid_anim_start, self.first_disc_anim, name="p_start")
     self.init_sequence.start()
-
 
 # Keyboard inputs map
 keyMap = {"left": False,"right": False,"down": False}
@@ -207,10 +204,10 @@ def init_quit_button(self):
     def quit_game():
         """ Quit game functions used for quit game button """
         print("Connect 4 > Quit the game")
-        self.grid.removeNode()
-        self.table.removeNode()
         for i in range(0, self.nb_discs):
             self.discs[i].disc.removeNode()
+        self.grid.removeNode()
+        self.table.removeNode()
         self.new_game_button.destroy()
         self.save_game_button.destroy()
         self.load_game_button.destroy()
@@ -249,7 +246,7 @@ def init(base):
     init_table(base)
     init_grid(base)
     init_discs(base)
-    table_grid_disc_animation(base)
+    run_start_animation(base)
     init_keyboard(base)
     init_general_parameters(base)
     init_victory_cases(base)

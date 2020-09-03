@@ -14,7 +14,7 @@ from panda3d.core import loadPrcFile
 from panda3d.core import TransparencyAttrib
 from direct.gui.DirectButton import DirectButton
 
-
+# Load the general settings files
 loadPrcFile("config/Confinit.prc")
 loadPrcFile("config/Config.prc")
 loadPrcFile("config/Confauto.prc")
@@ -27,8 +27,9 @@ class Main(ShowBase):
         super().__init__()
 
         # General settings
-        # self.disable_mouse()
+        self.disable_mouse()
 
+        # Load the background
         self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg")
         self.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
@@ -40,23 +41,28 @@ class Main(ShowBase):
         self.arm.setPlayRate(4, "anim1")
         self.arm.play("anim1")
 
-        self.icon_connect4 = DirectButton(image="img/icon_connect4.png", pos=(-1.5, 0, -0.8), scale=(0.2, 0.2, 0.2),
+        # Load the buttons
+        self.icon_connect4 = DirectButton(image="img/connect4.png", pos=(-1.5, 0, -0.8), scale=(0.2, 0.2, 0.2),
                                           relief=None, command=self.run_connect4)
         self.icon_connect4.setTransparency(TransparencyAttrib.MAlpha)
 
     def run_connect4(self):
+        """ Function that initializers the connect4 game """
         print("General > Run the Connect 4")
         self.hide_elements()
         init(self)
         self.taskMgr.add(self.loop, "loop")
 
     def show_elements(self):
+        """ Function that shows the elements of the initial display """
         self.icon_connect4.show()
 
     def hide_elements(self):
+        """ Function that hides the elements of the initial display """
         self.icon_connect4.hide()
 
     def loop(self, task):
+        """ Function that runs the connect4 game """
         if mainloop(self) == 0:
             self.show_elements()
             return task.done
