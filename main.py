@@ -4,8 +4,7 @@
 # @date   : 14/08/2020
 # ----------------------------------------------------------------------
 
-from connect4.gameplay import init
-from connect4.gameplay import mainloop
+from connect4.gameplay import Connect4
 
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.ShowBase import ShowBase
@@ -13,6 +12,8 @@ from direct.actor.Actor import Actor
 from panda3d.core import loadPrcFile
 from panda3d.core import TransparencyAttrib
 from direct.gui.DirectButton import DirectButton
+
+from functools import partial
 
 # Load the general settings files
 loadPrcFile("config/Confinit.prc")
@@ -46,15 +47,19 @@ class Main(ShowBase):
                                           relief=None, command=self.run_connect4)
         self.icon_connect4.setTransparency(TransparencyAttrib.MAlpha)
 
+        self.games = []
+
     def run_connect4(self):
         """ Function that initializers the connect4 game """
         print("General > Run the Connect 4")
         self.hide_elements()
-        init(self)
+        connect4 = Connect4(self)
+        self.games.append(connect4)
         self.taskMgr.add(self.loop, "loop")
 
     def show_elements(self):
         """ Function that shows the elements of the initial display """
+        self.games = []
         self.icon_connect4.show()
 
     def hide_elements(self):
@@ -63,7 +68,7 @@ class Main(ShowBase):
 
     def loop(self, task):
         """ Function that runs the connect4 game """
-        if mainloop(self) == 0:
+        if self.games[0].mainloop() == 0:
             self.show_elements()
             return task.done
         else:
