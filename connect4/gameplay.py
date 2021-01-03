@@ -12,6 +12,14 @@ from panda3d.core import Point3
 import numpy as np
 import csv
 
+import cv2
+import mediapipe as mp
+
+mp_drawing = mp.solutions.drawing_utils
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(
+    min_detection_confidence=0.7, min_tracking_confidence=0.5)
+cap = cv2.VideoCapture(0)
 
 class Disc:
     """ Creation of a disc """
@@ -45,8 +53,10 @@ class Connect4:
         self.quit_game_bool = False
         self.round = 0
 
+        # Initialization of audio coin
         self.audio_coin = self.base.loader.loadMusic("connect4/audio/coin.ogg")
 
+        # Initialization of the table
         self.table = self.base.loader.loadModel("connect4/models/table")
         self.table.reparentTo(self.render)
         self.table.setScale(2, 2, 2)
@@ -54,6 +64,7 @@ class Connect4:
         self.table_anim_start = self.table.posInterval(3, Point3(0, 30, -8), startPos=Point3(0, 0, -8))
         self.table_anim_end = self.table.posInterval(3, Point3(0, 0, -8), startPos=Point3(0, 30, -8))
 
+        # Initialization of the grid
         self.grid = self.base.loader.loadModel("connect4/models/grid")
         self.grid.reparentTo(self.render)
         self.grid.setColor(0.1, 0.2, 0.8, 1.0)
@@ -63,6 +74,7 @@ class Connect4:
         self.grid_anim_end = self.grid.posInterval(3, Point3(3.6, 30, 0), startPos=Point3(3.6, 30, -6))
         self.gridContent = np.zeros(6 * 7)
 
+        # Initialization of the discs
         self.discs = []
         self.nb_discs = 44
         for i in range(0, self.nb_discs):
@@ -75,9 +87,11 @@ class Connect4:
             self.discs.append(color_disc)
         self.first_disc_anim = self.discs[self.round].disc.posInterval(3, Point3(0, 30, 1.5), startPos=Point3(0, 0, 8))
 
+        # Initialization of start sequences
         self.init_sequence = Parallel(self.table_anim_start, self.grid_anim_start, self.first_disc_anim, name="p_start")
         self.init_sequence.start()
 
+        # Initialization of keys
         self.base.accept("arrow_left", self.updateKeyMap, ["left", True])
         self.base.accept("arrow_left-up", self.updateKeyMap, ["left", False])
         self.base.accept("arrow_right", self.updateKeyMap, ["right", True])
@@ -85,20 +99,24 @@ class Connect4:
         self.base.accept("arrow_down", self.updateKeyMap, ["down", True])
         self.base.accept("arrow_down-up", self.updateKeyMap, ["down", False])
 
+        # Initialization of winning cases
         self.results = []
         with open("connect4/csv/cases.csv") as csvfile:
             reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
             for row in reader:
                 self.results.append(row)
 
+        # Initialization of fonts
         self.font = self.base.loader.loadFont("connect4/font/Roboto-Medium.ttf")
         self.font.setPixelsPerUnit(60)
 
+        # Initialization of the victory text
         self.text_victory = OnscreenText(text='', pos=(1.4, -0.8), scale=0.1)
         self.text_victory.setFg((0, 0, 0, 1))
         self.text_victory.setBg((1, 1, 1, 0))
         self.text_victory.setShadow((0.5, 0.5, 0.5, 1))
 
+        # Initialization of buttons
         self.load_game_button = DirectButton(text="Load", pos=(-1.5, 0, 0.75), frameSize=(-3, 3, -0.5, 1), scale=.1,
                                              text_scale=0.9, command=self.load_game)
 
@@ -111,6 +129,37 @@ class Connect4:
 
         self.quit_game_button = DirectButton(text="Quit", pos=(-1.5, 0, -0.95), frameSize=(-3, 3, -0.5, 1), scale=.1,
                                              text_scale=0.9, command=self.quit_game)
+
+        self.hand_control_button = DirectButton(text="Activer le contrôle \n visuel", pos=(1.5, 0, -0.9), frameSize=(-3, 3, -1, 0.8), scale=.1,
+                                             text_scale=0.5, command=self.activate_hand_control)
+        self.hand_control_bool = False
+
+        # Initialization of the right hand
+        self.right_hand = self.base.loader.loadModel("connect4/models/hand")
+        self.right_hand.reparentTo(self.render)
+        self.right_hand.setPos(3.6, -20, 0)
+        self.right_hand.setColor(0.88, 0.67, 0.41, 1.0)
+        self.right_hand.setHpr(90, -90, 0)
+        self.right_hand.setScale(0.2, 0.2, 0.2)
+
+        self.left_hand = self.base.loader.loadModel("connect4/models/hand")
+        self.left_hand.reparentTo(self.render)
+        self.left_hand.setPos(-3.6, -20, 0)
+        self.left_hand.setColor(0.88, 0.67, 0.41, 1.0)
+        self.left_hand.setHpr(90, -90, 180)
+        self.left_hand.setScale(0.2, 0.2, 0.2)
+
+    def activate_hand_control(self):
+        if not self.hand_control_bool:
+            self.hand_control_bool = True
+            self.hand_control_button.setText("Désactiver le contrôle \n visuel")
+            self.right_hand.setPos(3.6, 20, 0)
+            self.left_hand.setPos(-3.6, 20, 0)
+        else:
+            self.hand_control_bool = False
+            self.hand_control_button.setText("Activer le contrôle \n visuel")
+            self.right_hand.setPos(3.6, -20, 0)
+            self.left_hand.setPos(-3.6, -20, 0)
 
     def updateKeyMap(self, key, state):
         """ Function that updates the input map """
@@ -145,8 +194,27 @@ class Connect4:
         """ New game functions used for new game button """
         print("Connect 4 > New game")
         self.gridContent = np.zeros(6 * 7)
+        pos_xr = [-10, -9, -8, -7,
+                  -10, -9, -8, -7, -6, -5,
+                  -10, -9, -8, -7, -6, -5,
+                  -10, -9, -8, -7, -6, -5]
+        pos_xy = [10, 9, 8, 7,
+                  10, 9, 8, 7, 6, 5,
+                  10, 9, 8, 7, 6, 5,
+                  10, 9, 8, 7, 6, 5]
+        pos_z = [-6.5, -6.5, -6.5, -6.5,
+                 -5, -5, -5, -5, -5, -5,
+                 -3.5, -3.5, -3.5, -3.5, -3.5, -3.5,
+                -2, -2, -2, -2, -2, -2]
+        n = 0
+        p = 0
         for i in range(0, 44):
-            self.discs[i].disc.setPos(0, 0, 1.5)
+            if i % 2 == 0:
+                self.discs[i].disc.setPos(pos_xr[n], 30, pos_z[n])
+                n += 1
+            else:
+                self.discs[i].disc.setPos(pos_xy[p], 30, pos_z[p])
+                p += 1
         self.round = 0
         self.discs[self.round].disc.setPos(0, 30, 1.5)
         self.text_victory.setText('')
@@ -266,5 +334,35 @@ class Connect4:
             self.new_game_button["text"] = "Restart"
             self.button_changed = True
             print("Connect 4 > Main loop")
+
+        if cap.isOpened() and self.hand_control_bool:
+            success, image = cap.read()
+
+            image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+
+            image.flags.writeable = False
+            results = hands.process(image)
+
+            # Draw the hand annotations on the image.
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+            x4 = 0
+            x20 = 0
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    for idx, landmark in enumerate(hand_landmarks.landmark):
+                        if idx == 4:
+                            x4 = landmark.x
+                        if idx == 20:
+                            x20 = landmark.x
+                        if idx == 9:
+                            x = 24 * landmark.x - 12
+                            z = - 14 * landmark.y + 7
+                    if x4 > x20:
+                        self.left_hand.setPos(x, 20, z)
+                    else:
+                        self.right_hand.setPos(x, 20, z)
+
 
         return 1

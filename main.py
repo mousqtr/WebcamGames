@@ -13,7 +13,6 @@ from panda3d.core import loadPrcFile
 from panda3d.core import TransparencyAttrib
 from direct.gui.DirectButton import DirectButton
 
-from functools import partial
 
 # Load the general settings files
 loadPrcFile("config/Confinit.prc")
