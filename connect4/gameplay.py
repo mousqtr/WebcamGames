@@ -141,25 +141,25 @@ class Connect4:
         self.right_hand.setColor(0.88, 0.67, 0.41, 1.0)
         self.right_hand.setHpr(90, -90, 0)
         self.right_hand.setScale(0.2, 0.2, 0.2)
-
-        self.left_hand = self.base.loader.loadModel("connect4/models/hand")
-        self.left_hand.reparentTo(self.render)
-        self.left_hand.setPos(-3.6, -20, 0)
-        self.left_hand.setColor(0.88, 0.67, 0.41, 1.0)
-        self.left_hand.setHpr(90, -90, 180)
-        self.left_hand.setScale(0.2, 0.2, 0.2)
+        #
+        # self.left_hand = self.base.loader.loadModel("connect4/models/hand")
+        # self.left_hand.reparentTo(self.render)
+        # self.left_hand.setPos(-3.6, -20, 0)
+        # self.left_hand.setColor(0.88, 0.67, 0.41, 1.0)
+        # self.left_hand.setHpr(90, -90, 180)
+        # self.left_hand.setScale(0.2, 0.2, 0.2)
 
     def activate_hand_control(self):
         if not self.hand_control_bool:
             self.hand_control_bool = True
             self.hand_control_button.setText("Désactiver le contrôle \n visuel")
             self.right_hand.setPos(3.6, 20, 0)
-            self.left_hand.setPos(-3.6, 20, 0)
+            # self.left_hand.setPos(-3.6, 20, 0)
         else:
             self.hand_control_bool = False
             self.hand_control_button.setText("Activer le contrôle \n visuel")
             self.right_hand.setPos(3.6, -20, 0)
-            self.left_hand.setPos(-3.6, -20, 0)
+            # self.left_hand.setPos(-3.6, -20, 0)
 
     def updateKeyMap(self, key, state):
         """ Function that updates the input map """
@@ -194,21 +194,21 @@ class Connect4:
         """ New game functions used for new game button """
         print("Connect 4 > New game")
         self.gridContent = np.zeros(6 * 7)
-        pos_xr = [-10, -9, -8, -7,
-                  -10, -9, -8, -7, -6, -5,
-                  -10, -9, -8, -7, -6, -5,
-                  -10, -9, -8, -7, -6, -5]
-        pos_xy = [10, 9, 8, 7,
-                  10, 9, 8, 7, 6, 5,
-                  10, 9, 8, 7, 6, 5,
-                  10, 9, 8, 7, 6, 5]
-        pos_z = [-6.5, -6.5, -6.5, -6.5,
-                 -5, -5, -5, -5, -5, -5,
-                 -3.5, -3.5, -3.5, -3.5, -3.5, -3.5,
-                -2, -2, -2, -2, -2, -2]
+        pos_xr = [-8.4, -7.2, -6.0,
+                  -12, -10.8, -9.6, -8.4, -7.2, -6.0,
+                  -12, -10.8, -9.6, -8.4, -7.2, -6.0,
+                  -12, -10.8, -9.6, -8.4, -7.2, -6.0]
+        pos_xy = [8.4, 7.2, 6.0,
+                  12, 10.8, 9.6, 8.4, 7.2, 6.0,
+                  12, 10.8, 9.6, 8.4, 7.2, 6.0,
+                  12, 10.8, 9.6, 8.4, 7.2, 6.0]
+        pos_z = [-6.4, -6.4, -6.4,
+                 -5.2, -5.2, -5.2, -5.2, -5.2, -5.2,
+                 -4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
+                 -2.8, -2.8, -2.8, -2.8, -2.8, -2.8]
         n = 0
         p = 0
-        for i in range(0, 44):
+        for i in range(0, 42):
             if i % 2 == 0:
                 self.discs[i].disc.setPos(pos_xr[n], 30, pos_z[n])
                 n += 1
@@ -321,7 +321,8 @@ class Connect4:
             self.line = 0
             self.column = 3
             self.round += 1
-            self.discs[self.round].disc.setPos(0, 30, 1.5)
+            if self.round < 42:
+                self.discs[self.round].disc.setPos(0, 30, 1.5)
 
         # Horizontal movement
         if self.movement_H:
@@ -347,22 +348,13 @@ class Connect4:
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-            x4 = 0
-            x20 = 0
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
                     for idx, landmark in enumerate(hand_landmarks.landmark):
-                        if idx == 4:
-                            x4 = landmark.x
-                        if idx == 20:
-                            x20 = landmark.x
                         if idx == 9:
                             x = 24 * landmark.x - 12
                             z = - 14 * landmark.y + 7
-                    if x4 > x20:
-                        self.left_hand.setPos(x, 20, z)
-                    else:
-                        self.right_hand.setPos(x, 20, z)
+                            self.right_hand.setPos(x, 20, z)
 
 
         return 1

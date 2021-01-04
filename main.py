@@ -27,7 +27,7 @@ class Main(ShowBase):
         super().__init__()
 
         # General settings
-        self.disable_mouse()
+        # self.disable_mouse()
 
         # Load the background
         self.background = OnscreenImage(parent=self.render2dp, image="tex/bedroom.jpg")
