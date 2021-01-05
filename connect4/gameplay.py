@@ -132,7 +132,10 @@ class Connect4:
 
         self.hand_control_button = DirectButton(text="Activer le contrôle \n visuel", pos=(1.5, 0, -0.9), frameSize=(-3, 3, -1, 0.8), scale=.1,
                                              text_scale=0.5, command=self.activate_hand_control)
-        self.hand_control_bool = False
+        # Mode
+        # (mode 0 : default mode)
+        # (mode 1 : hand control mode)
+        self.mode = 0
 
         # Initialization of the right hand
         self.right_hand = self.base.loader.loadModel("connect4/models/hand")
@@ -141,7 +144,7 @@ class Connect4:
         self.right_hand.setColor(0.88, 0.67, 0.41, 1.0)
         self.right_hand.setHpr(90, -90, 0)
         self.right_hand.setScale(0.2, 0.2, 0.2)
-        #
+
         # self.left_hand = self.base.loader.loadModel("connect4/models/hand")
         # self.left_hand.reparentTo(self.render)
         # self.left_hand.setPos(-3.6, -20, 0)
@@ -150,13 +153,14 @@ class Connect4:
         # self.left_hand.setScale(0.2, 0.2, 0.2)
 
     def activate_hand_control(self):
-        if not self.hand_control_bool:
-            self.hand_control_bool = True
+        if self.mode == 0:
+            self.mode = 1
             self.hand_control_button.setText("Désactiver le contrôle \n visuel")
-            self.right_hand.setPos(3.6, 20, 0)
+            self.right_hand.setPos(3.6, 30, 0)
+            self.new_game()
             # self.left_hand.setPos(-3.6, 20, 0)
         else:
-            self.hand_control_bool = False
+            self.mode = 0
             self.hand_control_button.setText("Activer le contrôle \n visuel")
             self.right_hand.setPos(3.6, -20, 0)
             # self.left_hand.setPos(-3.6, -20, 0)
@@ -193,31 +197,38 @@ class Connect4:
     def new_game(self):
         """ New game functions used for new game button """
         print("Connect 4 > New game")
+
         self.gridContent = np.zeros(6 * 7)
-        pos_xr = [-8.4, -7.2, -6.0,
-                  -12, -10.8, -9.6, -8.4, -7.2, -6.0,
-                  -12, -10.8, -9.6, -8.4, -7.2, -6.0,
-                  -12, -10.8, -9.6, -8.4, -7.2, -6.0]
-        pos_xy = [8.4, 7.2, 6.0,
-                  12, 10.8, 9.6, 8.4, 7.2, 6.0,
-                  12, 10.8, 9.6, 8.4, 7.2, 6.0,
-                  12, 10.8, 9.6, 8.4, 7.2, 6.0]
-        pos_z = [-6.4, -6.4, -6.4,
-                 -5.2, -5.2, -5.2, -5.2, -5.2, -5.2,
-                 -4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
-                 -2.8, -2.8, -2.8, -2.8, -2.8, -2.8]
-        n = 0
-        p = 0
-        for i in range(0, 42):
-            if i % 2 == 0:
-                self.discs[i].disc.setPos(pos_xr[n], 30, pos_z[n])
-                n += 1
-            else:
-                self.discs[i].disc.setPos(pos_xy[p], 30, pos_z[p])
-                p += 1
         self.round = 0
-        self.discs[self.round].disc.setPos(0, 30, 1.5)
         self.text_victory.setText('')
+
+        if self.mode == 0:
+            for i in range(0, 42):
+                self.discs[i].disc.setPos(100, 100, 100)
+            self.discs[self.round].disc.setPos(0, 30, 1.5)
+
+        elif self.mode == 1:
+            pos_xr = [-8.4, -7.2, -6.0,
+                      -12, -10.8, -9.6, -8.4, -7.2, -6.0,
+                      -12, -10.8, -9.6, -8.4, -7.2, -6.0,
+                      -12, -10.8, -9.6, -8.4, -7.2, -6.0]
+            pos_xy = [8.4, 7.2, 6.0,
+                      12, 10.8, 9.6, 8.4, 7.2, 6.0,
+                      12, 10.8, 9.6, 8.4, 7.2, 6.0,
+                      12, 10.8, 9.6, 8.4, 7.2, 6.0]
+            pos_z = [-6.4, -6.4, -6.4,
+                     -5.2, -5.2, -5.2, -5.2, -5.2, -5.2,
+                     -4.0, -4.0, -4.0, -4.0, -4.0, -4.0,
+                     -2.8, -2.8, -2.8, -2.8, -2.8, -2.8]
+            n = 0
+            p = 0
+            for i in range(0, 42):
+                if i % 2 == 0:
+                    self.discs[i].disc.setPos(pos_xr[n], 30, pos_z[n])
+                    n += 1
+                else:
+                    self.discs[i].disc.setPos(pos_xy[p], 30, pos_z[p])
+                    p += 1
 
     def save_game(self):
         """ Save game functions used for save game button """
@@ -265,70 +276,13 @@ class Connect4:
 
     def mainloop(self):
         """ Main loop of the connect 4 game """
+
+        # If quit_button is clicked
         if self.quit_game_bool:
             return 0
+
         # Get the clock
         dt = globalClock.getDt()
-
-        # Get the position of the current disc
-        pos = self.discs[self.round].disc.getPos()
-
-        # Left click
-        if self.keyMap["left"] and self.column != 0 and not self.movement_V:
-            self.keyMap["left"] = False
-            self.column -= 1
-            self.movement_H = True
-
-        # Right click
-        if self.keyMap["right"] and self.column != 6 and not self.movement_V:
-            self.keyMap["right"] = False
-            self.column += 1
-            self.movement_H = True
-
-        # down clic
-        if self.keyMap["down"] and self.gridContent[self.column] == 0 and not self.movement_V:
-            # To have only one click
-            self.keyMap["down"] = False
-
-            # Find the position
-            line_fixed = 0
-            self.line = 5
-            while line_fixed == 0 and self.line >= 0:
-                if self.gridContent[7 * self.line + self.column] != 0:
-                    self.line -= 1
-                else:
-                    line_fixed = 1
-            self.movement_V = True
-
-            # check if there is a victory or not
-            victory = self.check_victory()
-            if victory == 1:
-                self.text_victory.setText('Red wins')
-            if victory == 2:
-                self.text_victory.setText('Yellow wins')
-
-        # Progressive vertical movement
-        if self.movement_V and pos.z >= self.axes_V[self.line]:
-            pos.z -= self.speed * dt
-            self.discs[self.round].disc.setPos(pos)
-
-        # Set the disc position / Prepare next disc
-        if self.movement_V and pos.z <= self.axes_V[self.line]:
-            pos.z = self.axes_V[self.line]
-            self.discs[self.round].disc.setPos(pos)
-            self.audio_coin.play()
-            self.movement_V = False
-            self.line = 0
-            self.column = 3
-            self.round += 1
-            if self.round < 42:
-                self.discs[self.round].disc.setPos(0, 30, 1.5)
-
-        # Horizontal movement
-        if self.movement_H:
-            pos.x = self.axes_H[self.column]
-            self.discs[self.round].disc.setPos(pos)
-            self.movement_H = False
 
         # Change the button "New game" to "Restart" for the first round
         if self.round == 1 and self.button_changed == False:
@@ -336,7 +290,69 @@ class Connect4:
             self.button_changed = True
             print("Connect 4 > Main loop")
 
-        if cap.isOpened() and self.hand_control_bool:
+        # Get the position of the current disc
+        pos = self.discs[self.round].disc.getPos()
+
+        if self.mode == 0:
+            # Left click
+            if self.keyMap["left"] and self.column != 0 and not self.movement_V:
+                self.keyMap["left"] = False
+                self.column -= 1
+                self.movement_H = True
+
+            # Right click
+            if self.keyMap["right"] and self.column != 6 and not self.movement_V:
+                self.keyMap["right"] = False
+                self.column += 1
+                self.movement_H = True
+
+            # down clic
+            if self.keyMap["down"] and self.gridContent[self.column] == 0 and not self.movement_V:
+                # To have only one click
+                self.keyMap["down"] = False
+
+                # Find the position
+                line_fixed = 0
+                self.line = 5
+                while line_fixed == 0 and self.line >= 0:
+                    if self.gridContent[7 * self.line + self.column] != 0:
+                        self.line -= 1
+                    else:
+                        line_fixed = 1
+                self.movement_V = True
+
+                # check if there is a victory or not
+                victory = self.check_victory()
+                if victory == 1:
+                    self.text_victory.setText('Red wins')
+                if victory == 2:
+                    self.text_victory.setText('Yellow wins')
+
+            # Progressive vertical movement
+            if self.movement_V and pos.z >= self.axes_V[self.line]:
+                pos.z -= self.speed * dt
+                self.discs[self.round].disc.setPos(pos)
+
+            # Set the disc position / Prepare next disc
+            if self.movement_V and pos.z <= self.axes_V[self.line]:
+                pos.z = self.axes_V[self.line]
+                self.discs[self.round].disc.setPos(pos)
+                self.audio_coin.play()
+                self.movement_V = False
+                self.line = 0
+                self.column = 3
+                self.round += 1
+                if self.round < 42:
+                    self.discs[self.round].disc.setPos(0, 30, 1.5)
+
+            # Horizontal movement
+            if self.movement_H:
+                pos.x = self.axes_H[self.column]
+                self.discs[self.round].disc.setPos(pos)
+                self.movement_H = False
+
+        # Detect hand position
+        if cap.isOpened() and self.mode == 1:
             success, image = cap.read()
 
             image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -354,7 +370,9 @@ class Connect4:
                         if idx == 9:
                             x = 24 * landmark.x - 12
                             z = - 14 * landmark.y + 7
-                            self.right_hand.setPos(x, 20, z)
+                            self.right_hand.setPos(x, 30, z)
+
+                            self.discs[self.round].disc.setPos(x - 0.5, 30, z + 0.5)
 
 
         return 1
