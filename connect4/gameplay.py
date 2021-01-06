@@ -24,8 +24,9 @@ cap = cv2.VideoCapture(0)
 class Disc:
     """ Creation of a disc """
 
-    def __init__(self, disc, r, g, b):
+    def __init__(self, id, disc, r, g, b):
         """ Initialization of a disc """
+        self.id = id
         self.disc = disc
         self.disc.setColor(r, g, b, 1.0)
         self.disc.setPos(0, 0, 6)
@@ -39,7 +40,7 @@ class Connect4:
         self.render = p_base.render
 
         # Keyboard inputs map
-        self.keyMap = {"left": False, "right": False, "down": False}
+        self.keyMap = {"left": False, "right": False, "down": False, "drop": False}
 
         # Global parameters
         self.player = 1
@@ -81,9 +82,9 @@ class Connect4:
             disc = self.base.loader.loadModel("connect4/models/disc")
             disc.reparentTo(self.render)
             if i % 2 == 0:
-                color_disc = Disc(disc, 1.0, 0.0, 0.0)
+                color_disc = Disc(i, disc, 1.0, 0.0, 0.0)
             else:
-                color_disc = Disc(disc, 1.0, 1.0, 0.0)
+                color_disc = Disc(i, disc, 1.0, 1.0, 0.0)
             self.discs.append(color_disc)
         self.first_disc_anim = self.discs[self.round].disc.posInterval(3, Point3(0, 30, 1.5), startPos=Point3(0, 0, 8))
 
@@ -98,6 +99,8 @@ class Connect4:
         self.base.accept("arrow_right-up", self.updateKeyMap, ["right", False])
         self.base.accept("arrow_down", self.updateKeyMap, ["down", True])
         self.base.accept("arrow_down-up", self.updateKeyMap, ["down", False])
+        self.base.accept("space", self.updateKeyMap, ["drop", True])
+        self.base.accept("space-up", self.updateKeyMap, ["drop", False])
 
         # Initialization of winning cases
         self.results = []
@@ -136,6 +139,8 @@ class Connect4:
         # (mode 0 : default mode)
         # (mode 1 : hand control mode)
         self.mode = 0
+
+        self.disc_caught = -1
 
         # Initialization of the right hand
         self.right_hand = self.base.loader.loadModel("connect4/models/hand")
@@ -372,7 +377,19 @@ class Connect4:
                             z = - 14 * landmark.y + 7
                             self.right_hand.setPos(x, 30, z)
 
-                            self.discs[self.round].disc.setPos(x - 0.5, 30, z + 0.5)
+                            if self.disc_caught == -1:
+                                for i in range(0, 42):
+                                    if (abs(self.right_hand.getPos().x - 0.5 - self.discs[i].disc.getPos().x) < 0.5) \
+                                            and abs(self.right_hand.getPos().z - self.discs[i].disc.getPos().z) < 0.5:
+                                        print(self.discs[i].id)
+                                        self.disc_caught = self.discs[i].id
+                                        self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
+                            else:
+                                self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
+
+                            if self.keyMap["drop"]:
+                                self.keyMap["drop"] = False
+                            # self.discs[self.round].disc.setPos(x - 0.5, 30, z + 0.5)
 
 
         return 1
