@@ -377,19 +377,28 @@ class Connect4:
                             z = - 14 * landmark.y + 7
                             self.right_hand.setPos(x, 30, z)
 
+                            # If any disc is caught
                             if self.disc_caught == -1:
                                 for i in range(0, 42):
                                     if (abs(self.right_hand.getPos().x - 0.5 - self.discs[i].disc.getPos().x) < 0.5) \
                                             and abs(self.right_hand.getPos().z - self.discs[i].disc.getPos().z) < 0.5:
-                                        print(self.discs[i].id)
+                                        # print(self.discs[i].id)
                                         self.disc_caught = self.discs[i].id
                                         self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
-                            else:
+                            else:  # If self.disc_caught is caught
                                 self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
 
-                            if self.keyMap["drop"]:
-                                self.keyMap["drop"] = False
-                            # self.discs[self.round].disc.setPos(x - 0.5, 30, z + 0.5)
+                                if self.keyMap["drop"]:
+                                    self.keyMap["drop"] = False
+                                    pos_x = self.discs[self.disc_caught].disc.getPos().x
+                                    min = 10
+                                    for i in range(len(self.axes_H)):
+                                        if abs(self.axes_H[i] - pos_x) < min:
+                                            self.column = self.axes_H[i]
+                                            min = abs(self.axes_H[i] - pos_x)
+
+
+
 
 
         return 1
