@@ -141,6 +141,7 @@ class Connect4:
         self.mode = 0
 
         self.disc_caught = -1
+        self.disc_dropped = -1
 
         # Initialization of the right hand
         self.right_hand = self.base.loader.loadModel("connect4/models/hand")
@@ -168,6 +169,7 @@ class Connect4:
             self.mode = 0
             self.hand_control_button.setText("Activer le contrôle \n visuel")
             self.right_hand.setPos(3.6, -20, 0)
+            self.new_game()
             # self.left_hand.setPos(-3.6, -20, 0)
 
     def updateKeyMap(self, key, state):
@@ -263,7 +265,12 @@ class Connect4:
         @return 1 if red wins and 2 if yellow wins
         """
 
-        if self.round % 2 == 0:
+        if self.mode == 0:
+            num_disc = self.round
+        elif self.mode == 1:
+            num_disc = self.disc_dropped
+
+        if num_disc % 2 == 0:
             disc_type = 1
         else:
             disc_type = 2
@@ -295,10 +302,12 @@ class Connect4:
             self.button_changed = True
             print("Connect 4 > Main loop")
 
-        # Get the position of the current disc
-        pos = self.discs[self.round].disc.getPos()
-
+        # Default mode
         if self.mode == 0:
+
+            # Get the position of the current disc
+            pos = self.discs[self.round].disc.getPos()
+
             # Left click
             if self.keyMap["left"] and self.column != 0 and not self.movement_V:
                 self.keyMap["left"] = False
@@ -316,7 +325,7 @@ class Connect4:
                 # To have only one click
                 self.keyMap["down"] = False
 
-                # Find the position
+                # Find the final disc line
                 line_fixed = 0
                 self.line = 5
                 while line_fixed == 0 and self.line >= 0:
@@ -347,55 +356,102 @@ class Connect4:
                 self.line = 0
                 self.column = 3
                 self.round += 1
-                if self.round < 42:
+                if self.round < 42 and self.mode == 0:
                     self.discs[self.round].disc.setPos(0, 30, 1.5)
 
             # Horizontal movement
-            if self.movement_H:
+            if self.mode == 0 and self.movement_H:
                 pos.x = self.axes_H[self.column]
                 self.discs[self.round].disc.setPos(pos)
                 self.movement_H = False
 
-        # Detect hand position
-        if cap.isOpened() and self.mode == 1:
-            success, image = cap.read()
+        # Handplay mode
+        if self.mode == 1:
 
-            image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+            # Detect hand position
+            if cap.isOpened():
+                success, image = cap.read()
 
-            image.flags.writeable = False
-            results = hands.process(image)
+                image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
 
-            # Draw the hand annotations on the image.
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                image.flags.writeable = False
+                results = hands.process(image)
 
-            if results.multi_hand_landmarks:
-                for hand_landmarks in results.multi_hand_landmarks:
-                    for idx, landmark in enumerate(hand_landmarks.landmark):
-                        if idx == 9:
-                            x = 24 * landmark.x - 12
-                            z = - 14 * landmark.y + 7
-                            self.right_hand.setPos(x, 30, z)
+                # Draw the hand annotations on the image.
+                image.flags.writeable = True
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-                            # If any disc is caught
-                            if self.disc_caught == -1:
-                                for i in range(0, 42):
-                                    if (abs(self.right_hand.getPos().x - 0.5 - self.discs[i].disc.getPos().x) < 0.5) \
-                                            and abs(self.right_hand.getPos().z - self.discs[i].disc.getPos().z) < 0.5:
-                                        # print(self.discs[i].id)
-                                        self.disc_caught = self.discs[i].id
-                                        self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
-                            else:  # If self.disc_caught is caught
-                                self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
+                # If a hand is detected
+                if results.multi_hand_landmarks:
+                    for hand_landmarks in results.multi_hand_landmarks:
+                        for idx, landmark in enumerate(hand_landmarks.landmark):
+                            if idx == 9:
+                                x = 24 * landmark.x - 12
+                                z = - 14 * landmark.y + 7
+                                self.right_hand.setPos(x, 30, z)
 
-                                if self.keyMap["drop"]:
-                                    self.keyMap["drop"] = False
-                                    pos_x = self.discs[self.disc_caught].disc.getPos().x
-                                    min = 10
-                                    for i in range(len(self.axes_H)):
-                                        if abs(self.axes_H[i] - pos_x) < min:
-                                            self.column = self.axes_H[i]
-                                            min = abs(self.axes_H[i] - pos_x)
+                # If a is caught
+                if self.disc_caught != -1:
+                    self.discs[self.disc_caught].disc.setPos(self.right_hand.getPos().x - 0.5, 30, self.right_hand.getPos().z + 0.5)
+                else:
+                    for i in range(0, 42):
+                        if (abs(self.right_hand.getPos().x - 0.5 - self.discs[i].disc.getPos().x) < 0.5) \
+                                and abs(self.right_hand.getPos().z - self.discs[i].disc.getPos().z) < 0.5:
+                            self.disc_caught = self.discs[i].id
+                            print("Disc n°", self.disc_caught, " is caught")
+                            self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
+
+                # If space touch is pressed
+                if self.keyMap["drop"]:
+                    print("Disc n°", self.disc_caught, " is dropped")
+                    self.keyMap["drop"] = False
+                    pos_x = self.discs[self.disc_caught].disc.getPos().x
+                    min = 10
+                    for i in range(len(self.axes_H)):
+                        if abs(self.axes_H[i] - pos_x) < min:
+                            self.column = i
+                            min = abs(self.axes_H[i] - pos_x)
+                    print(self.column)
+
+                    # Find the final disc line
+                    line_fixed = 0
+                    self.line = 5
+                    while line_fixed == 0 and self.line >= 0:
+                        if self.gridContent[7 * self.line + self.column] != 0:
+                            self.line -= 1
+                        else:
+                            line_fixed = 1
+                    self.movement_V = True
+                    print(self.line)
+
+                    self.discs[self.disc_caught].disc.setPos(self.axes_H[self.column], 30, self.axes_V[0])
+                    self.disc_dropped = self.disc_caught
+                    self.disc_caught = -1
+
+                    # check if there is a victory or not
+                    victory = self.check_victory()
+                    if victory == 1:
+                        self.text_victory.setText('Red wins')
+                    if victory == 2:
+                        self.text_victory.setText('Yellow wins')
+
+                # Progressive vertical movement
+                pos = self.discs[self.disc_dropped].disc.getPos()
+                if self.movement_V and pos.z >= self.axes_V[self.line]:
+                    pos.z -= self.speed * dt
+                    self.discs[self.disc_dropped].disc.setPos(pos)
+
+                # Set the disc position
+                if self.movement_V and pos.z <= self.axes_V[self.line]:
+                    pos.z = self.axes_V[self.line]
+                    self.discs[self.disc_dropped].disc.setPos(pos)
+                    self.audio_coin.play()
+                    self.movement_V = False
+                    self.line = 0
+                    self.column = 3
+                    self.round += 1
+
+
 
 
 
