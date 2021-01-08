@@ -23,3 +23,14 @@ pip install -r requirements.txt
 ```
 python main.py
 ```
+
+## Preview
+
+<img src="/resources/images/preview.png?raw=true" alt="preview" style="width: 100px;"/>
+
+## Connect 4
+### Default mode
+<img src="/resources/images/connect4_1.png?raw=true" alt="connect4_1" style="width: 100px;"/>
+
+### Hand control mode
+<img src="/resources/images/connect4_2.png?raw=true" alt="connect4_2" style="width: 100px;"/>
