@@ -1,7 +1,7 @@
 
 
 
-window-title Titre
+window-title Webcam games
 undecorated false
 show-scene-graph-analyzer-meter 0
 sync-video 1
