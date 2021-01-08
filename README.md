@@ -11,6 +11,7 @@ or download and extract the .zip file
 
 ### Create and activate the virtual environment in the folder
 ```
+cd WebcamGames
 python -m venv venv
 venv\Scripts\activate.bat
 ```

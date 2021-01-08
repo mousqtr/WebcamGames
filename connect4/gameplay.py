@@ -398,12 +398,12 @@ class Connect4:
                         if (abs(self.right_hand.getPos().x - 0.5 - self.discs[i].disc.getPos().x) < 0.5) \
                                 and abs(self.right_hand.getPos().z - self.discs[i].disc.getPos().z) < 0.5:
                             self.disc_caught = self.discs[i].id
-                            print("Disc n°", self.disc_caught, " is caught")
+                            print("Connect 4 > Disc n°", self.disc_caught, " is caught")
                             self.discs[self.disc_caught].disc.setPos(x - 0.5, 30, z + 0.5)
 
                 # If space touch is pressed
                 if self.keyMap["drop"]:
-                    print("Disc n°", self.disc_caught, " is dropped")
+                    print("Connect 4 > Disc n°", self.disc_caught, " is dropped")
                     self.keyMap["drop"] = False
                     pos_x = self.discs[self.disc_caught].disc.getPos().x
                     min = 10
@@ -411,7 +411,6 @@ class Connect4:
                         if abs(self.axes_H[i] - pos_x) < min:
                             self.column = i
                             min = abs(self.axes_H[i] - pos_x)
-                    print(self.column)
 
                     # Find the final disc line
                     line_fixed = 0
@@ -422,7 +421,6 @@ class Connect4:
                         else:
                             line_fixed = 1
                     self.movement_V = True
-                    print(self.line)
 
                     self.discs[self.disc_caught].disc.setPos(self.axes_H[self.column], 30, self.axes_V[0])
                     self.disc_dropped = self.disc_caught
