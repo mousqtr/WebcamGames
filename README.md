@@ -5,7 +5,7 @@ This project aims to create mini-games in Python using the recognition algorithm
 ## Usage
 ### Clone the project
 ```
-clone https://github.com/mousqtr/WebcamGames.git
+git clone https://github.com/mousqtr/WebcamGames.git
 ```
 or download and extract the .zip file
 
